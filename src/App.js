@@ -1,58 +1,40 @@
-import React, { useState } from 'react';
-import './App.css';
+import React, { useState, useEffect } from 'react';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import Header from './components/Header';
+import Dashboard from './pages/Dashboard';
+import Schedule from './pages/Schedule';
 
 function App() {
   const [posts, setPosts] = useState([]);
-  const [newPost, setNewPost] = useState({ content: '', date: '', platform: 'Twitter' });
 
-  const handleInputChange = (e) => {
-    setNewPost({ ...newPost, [e.target.name]: e.target.value });
+  useEffect(() => {
+    const storedPosts = JSON.parse(localStorage.getItem('posts') || '[]');
+    setPosts(storedPosts);
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem('posts', JSON.stringify(posts));
+  }, [posts]);
+
+  const handleSubmit = (newPost) => {
+    setPosts([...posts, newPost]);
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    setPosts([...posts, newPost]);
-    setNewPost({ content: '', date: '', platform: 'Twitter' });
+  const handleDelete = (index) => {
+    const newPosts = posts.filter((_, i) => i !== index);
+    setPosts(newPosts);
   };
 
   return (
-    <div className="App">
-      <h1>Social Media Post Scheduler</h1>
-      <form onSubmit={handleSubmit}>
-        <textarea
-          name="content"
-          value={newPost.content}
-          onChange={handleInputChange}
-          placeholder="Post content"
-          required
-        />
-        <input
-          type="datetime-local"
-          name="date"
-          value={newPost.date}
-          onChange={handleInputChange}
-          required
-        />
-        <select
-          name="platform"
-          value={newPost.platform}
-          onChange={handleInputChange}
-        >
-          <option value="Twitter">Twitter</option>
-          <option value="Facebook">Facebook</option>
-          <option value="LinkedIn">LinkedIn</option>
-        </select>
-        <button type="submit">Schedule Post</button>
-      </form>
-      <h2>Scheduled Posts</h2>
-      <ul>
-        {posts.map((post, index) => (
-          <li key={index}>
-            {post.content} - {post.date} ({post.platform})
-          </li>
-        ))}
-      </ul>
-    </div>
+    <Router>
+      <div className="App">
+        <Header />
+        <Routes>
+          <Route exact path="/" render={() => <Dashboard posts={posts} onDelete={handleDelete} />} />
+          <Route path="/schedule" render={() => <Schedule onSubmit={handleSubmit} />} />
+        </Routes>
+      </div>
+    </Router>
   );
 }
 
