@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Route, Routes, Link } from 'react-router-dom';
+import { ThemeProvider } from '@mui/material/styles';
+import CssBaseline from '@mui/material/CssBaseline';
 import { Container, AppBar, Toolbar, Typography, Button, TextField, Select, MenuItem, List, ListItem, ListItemText } from '@mui/material';
+import theme from './theme';
 
 function PostForm({ onSubmit }) {
   const [post, setPost] = useState({ content: '', date: '', platform: 'Twitter' });
@@ -17,6 +20,9 @@ function PostForm({ onSubmit }) {
 
   return (
     <form onSubmit={handleSubmit}>
+      <Typography variant="h4" gutterBottom>
+        Schedule a New Post
+      </Typography>
       <TextField
         name="content"
         label="Post Content"
@@ -26,6 +32,7 @@ function PostForm({ onSubmit }) {
         onChange={handleChange}
         fullWidth
         margin="normal"
+        variant="outlined"
       />
       <TextField
         name="date"
@@ -38,6 +45,7 @@ function PostForm({ onSubmit }) {
         InputLabelProps={{
           shrink: true,
         }}
+        variant="outlined"
       />
       <Select
         name="platform"
@@ -45,12 +53,19 @@ function PostForm({ onSubmit }) {
         onChange={handleChange}
         fullWidth
         margin="normal"
+        variant="outlined"
       >
         <MenuItem value="Twitter">Twitter</MenuItem>
         <MenuItem value="Facebook">Facebook</MenuItem>
         <MenuItem value="LinkedIn">LinkedIn</MenuItem>
       </Select>
-      <Button type="submit" variant="contained" color="primary">
+      <Button 
+        type="submit" 
+        variant="contained" 
+        color="primary" 
+        size="large"
+        style={{ marginTop: '1rem' }}
+      >
         Schedule Post
       </Button>
     </form>
@@ -59,16 +74,29 @@ function PostForm({ onSubmit }) {
 
 function PostList({ posts }) {
   return (
-    <List>
-      {posts.map((post, index) => (
-        <ListItem key={index}>
-          <ListItemText
-            primary={post.content}
-            secondary={`${post.date} - ${post.platform}`}
-          />
-        </ListItem>
-      ))}
-    </List>
+    <>
+      <Typography variant="h4" gutterBottom>
+        Scheduled Posts
+      </Typography>
+      <List>
+        {posts.map((post, index) => (
+          <ListItem key={index} divider>
+            <ListItemText
+              primary={
+                <Typography variant="body1" style={{ fontWeight: 500 }}>
+                  {post.content}
+                </Typography>
+              }
+              secondary={
+                <Typography variant="body2" color="textSecondary">
+                  {`${post.date} - ${post.platform}`}
+                </Typography>
+              }
+            />
+          </ListItem>
+        ))}
+      </List>
+    </>
   );
 }
 
@@ -89,27 +117,30 @@ function App() {
   };
 
   return (
-    <Router>
-      <AppBar position="static">
-        <Toolbar>
-          <Typography variant="h6" style={{ flexGrow: 1 }}>
-            Social Media Scheduler
-          </Typography>
-          <Button color="inherit" component={Link} to="/">
-            Home
-          </Button>
-          <Button color="inherit" component={Link} to="/schedule">
-            Schedule Post
-          </Button>
-        </Toolbar>
-      </AppBar>
-      <Container>
-        <Routes>
-          <Route path="/" element={<PostList posts={posts} />} />
-          <Route path="/schedule" element={<PostForm onSubmit={handleSubmit} />} />
-        </Routes>
-      </Container>
-    </Router>
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <Router>
+        <AppBar position="static" color="primary">
+          <Toolbar>
+            <Typography variant="h6" style={{ flexGrow: 1, fontWeight: 700 }}>
+              Social Media Scheduler
+            </Typography>
+            <Button color="inherit" component={Link} to="/">
+              Home
+            </Button>
+            <Button color="inherit" component={Link} to="/schedule">
+              Schedule Post
+            </Button>
+          </Toolbar>
+        </AppBar>
+        <Container style={{ marginTop: '2rem' }}>
+          <Routes>
+            <Route path="/" element={<PostList posts={posts} />} />
+            <Route path="/schedule" element={<PostForm onSubmit={handleSubmit} />} />
+          </Routes>
+        </Container>
+      </Router>
+    </ThemeProvider>
   );
 }
 
